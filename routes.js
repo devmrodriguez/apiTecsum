@@ -9,6 +9,9 @@ router.route('/').get(function (req, resp) {
     resp.send('API Tecnología y Suministros S.A. de C.V.')
 });
 
+router.route('/api').get(function (req, resp){
+    resp.send('API Tecnología y Suministros S.A. de C.V.')
+});
 
 /* Ruta para el envío de correos */
 router.route("/contacto")
