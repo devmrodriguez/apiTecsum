@@ -3,28 +3,25 @@ const nodemailer = require('nodemailer');
 
 /* Configurar el correo electrónico */
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: process.env.HOST_CORREO,
     port: 587,
     secure: false,
     auth: {
-        user: 'mariorocko99@gmail.com', // generated ethereal user
-        pass: 'oijaejjmixbbljud', // generated ethereal password
+        user: process.env.EMAIL_USER, // generated ethereal user
+        pass: process.env.EMAIL_PASSWORD, // generated ethereal password
     },
 });
 
 module.exports = function (cualNotificacion, nombre, email, mensaje, telefono, empresa) {
-
-    // Notificaciones
-    // 0. Notificación de formulario de contacto - administrador.
-    // 1. Notificación de formulario de contacto - cliente.
-    // 2. Notificación con node-cron
+    /*     0. Notificación de formulario de contacto - administrador.
+        1. Notificación de formulario de contacto - cliente. */
 
     /* Mensaje dependiendo de la notificacion */
     let notificaciones = [
         {
             subject: `Nuevo mensaje de ${nombre}`,
-            titulo: "Nuevo formulario de contacto enviado",
-            contenido: `Nombre del remitente: ${nombre}.<br>Empresa: ${empresa}.<br>Correo electrónico del remitente: ${email}.<br>Numero de telefono del remitente: ${telefono}.<br>Mensaje: ${mensaje}.`
+            titulo: "Nuevo formulario de contacto recibido",
+            contenido: `Nombre del remitente: ${nombre}.<br>Empresa: ${empresa}.<br>Correo electrónico del remitente: ${email}.<br>Número de teléfono del remitente: ${telefono}.<br>Mensaje: ${mensaje}.`
         },
         {
             subject: `Hemos recibido tu mensaje ${nombre}`,
@@ -117,22 +114,42 @@ module.exports = function (cualNotificacion, nombre, email, mensaje, telefono, e
 
     /* Notificar o enviar correo */
     transporter.verify().then(console.log).catch(console.error);
-    transporter.sendMail({
-        from: '"Tecnología y suministros" <ventas@ts.com.sv>', // sender address
-        to: email, // list of receivers
-        subject: notificaciones[cualNotificacion].subject, // Subject line
-        text: notificaciones[cualNotificacion].notificacion, // plain text body
-        html: mensajeHtml, // html body
-        attachments: [
-            {
-                filename: 'logo.png',
-                path: 'public/images/logo.png',
-                cid: 'logo' //same cid value as in the html img src
-            },
-        ],
-    }).then(info => {
-        console.log({ info });
-    }).catch(console.error);
-    // Notificar o enviar correo
-
+    const emailVentas = process.env.EMAIL_VENTAS;
+    const emailAdmin = process.env.EMAIL_ADMIN;
+    if (cualNotificacion === 0) {
+        transporter.sendMail({
+            from: `Tecnología y Suministros ${emailVentas}`,
+            to: emailVentas,
+            cc: emailAdmin,
+            subject: notificaciones[cualNotificacion].subject,
+            text: notificaciones[cualNotificacion].notificacion,
+            html: mensajeHtml,
+            attachments: [
+                {
+                    filename: 'logo.png',
+                    path: 'public/images/logo.png',
+                    cid: 'logo'
+                },
+            ],
+        }).then(info => {
+            console.log({ info });
+        }).catch(console.error);
+    } else {
+        transporter.sendMail({
+            from: `Tecnología y Suministros ${emailVentas}`,
+            to: email,
+            subject: notificaciones[cualNotificacion].subject,
+            text: notificaciones[cualNotificacion].notificacion,
+            html: mensajeHtml,
+            attachments: [
+                {
+                    filename: 'logo.png',
+                    path: 'public/images/logo.png',
+                    cid: 'logo'
+                },
+            ],
+        }).then(info => {
+            console.log({ info });
+        }).catch(console.error);
+    }
 }
