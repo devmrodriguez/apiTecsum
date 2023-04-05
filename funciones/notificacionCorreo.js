@@ -1,14 +1,14 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-/* Configurar el correo electrónico */
+/* Configuraciones generales para el envió del correo */
 const transporter = nodemailer.createTransport({
     host: process.env.HOST_CORREO,
-    port: 587,
-    secure: false,
+    port: process.env.PUERTO_HOST,
+    secure: true,
     auth: {
-        user: process.env.EMAIL_USER, // generated ethereal user
-        pass: process.env.EMAIL_PASSWORD, // generated ethereal password
+        user: process.env.EMAIL_VENTAS, 
+        pass: process.env.EMAIL_PASSWORD, 
     },
 });
 
